@@ -98,7 +98,8 @@ namespace JwtAuthDotNet9.Services.implementations
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role.ToString())
             };
 
             // Get secret key from configuration

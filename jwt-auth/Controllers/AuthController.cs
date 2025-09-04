@@ -5,6 +5,7 @@ using JwtAuthDotNet9.Entities;
 using JwtAuthDotNet9.Models;
 using JwtAuthDotNet9.Services;
 using JwtAuthDotNet9.Services.implementations;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -53,6 +54,20 @@ namespace JwtAuthDotNet9.Controllers
                 return result;
 
             return BadRequest("Invalid Log-in attempt.");
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("authsOnly")]
+        public ActionResult authsOnly()
+        {
+            return Ok("You are Authenticated..😊");
+        }
+
+        [Authorize(Roles = "User")]
+        [HttpGet("pandusOnly")]
+        public ActionResult pandusOnly()
+        {
+            return Ok("You are Authenticated..😊");
         }
 
     }
