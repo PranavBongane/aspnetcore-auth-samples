@@ -29,7 +29,7 @@ namespace JwtAuthDotNet9.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(UserDTO request)
         {
-            var result = await authService.Register(request);
+            var result = await authService.RegisterAsync(request);
 
             if (result != null)
                 return Ok("User registered.....✔️");
@@ -46,28 +46,67 @@ namespace JwtAuthDotNet9.Controllers
         /// or <see cref="BadRequestObjectResult"/> if the login attempt is invalid.
         /// </returns>
         [HttpPost("login")]
-        public async Task<ActionResult<string>> Login(UserDTO request)
+        public async Task<ActionResult<TokenResponseDTO?>> Login(UserDTO request)
         {
-            var result = await authService.LogIn(request);
+            var result = await authService.LogInAsync(request);
 
             if (result != null)
                 return result;
 
             return BadRequest("Invalid Log-in attempt.");
         }
-
-        [Authorize(Roles = "Admin")]
-        [HttpGet("authsOnly")]
-        public ActionResult authsOnly()
+       
+        /// <summary>
+        /// Refreshes authentication tokens (JWT + refresh token) for a client,  
+        /// if the provided refresh token is valid.
+        /// </summary>
+        /// <param name="request">
+        /// The <see cref="RefreshTokenRequestDTO"/> containing the user ID and refresh token.
+        /// </param>
+        /// <returns>
+        /// An <see cref="ActionResult{T}"/> containing a <see cref="TokenResponseDTO"/> with new tokens  
+        /// if successful; otherwise, <see cref="UnauthorizedResult"/>.
+        /// </returns>
+        [HttpPost("refreshtokens")]
+        public async Task<ActionResult<TokenResponseDTO>> RefreshAuthTokens(RefreshTokenRequestDTO request)
         {
-            return Ok("You are Authenticated..😊");
+            // Delegate refresh logic to the authentication service
+            var result = await authService.RefreshTokensAsync(request);
+
+            // Validate response (null, invalid token, or missing fields)
+            if (result is null || result.RefreshToken is null || result.AccessToken is null)
+            {
+                return Unauthorized("Invalid refresh token.....🤨");
+            }
+
+            // Return new JWT + refresh token
+            return Ok(result);
         }
 
-        [Authorize(Roles = "User")]
-        [HttpGet("pandusOnly")]
-        public ActionResult pandusOnly()
+        /// <summary>
+        /// Endpoint accessible only to authenticated users with the "Admin" role.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="ActionResult"/> containing a success message if authorized.
+        /// </returns>
+        [Authorize(Roles = "Admin")]
+        [HttpGet("adminsOnly")]
+        public ActionResult AuthsOnly()
         {
-            return Ok("You are Authenticated..😊");
+            return Ok("You are Admin..😊");
+        }
+
+        /// <summary>
+        /// Endpoint accessible only to authenticated users with the "User" role.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="ActionResult"/> containing a success message if authorized.
+        /// </returns>
+        [Authorize(Roles = "User")]
+        [HttpGet("usersOnly")]
+        public ActionResult PandusOnly()
+        {
+            return Ok("You are User..😊");
         }
 
     }
