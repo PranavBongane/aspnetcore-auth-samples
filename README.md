@@ -1,57 +1,143 @@
-# **🔐 JWT Authentication \- ASP.NET Core**
+# **🔐 ASP.NET Core Authentication Samples**
 
-This project is a self-contained example of **JWT (JSON Web Token) authentication** within an ASP.NET Core Web API.
+This repository contains **self-contained examples** of different authentication strategies in **ASP.NET Core Web APIs**.  
+ Each project demonstrates a different approach with real-world features and testing instructions.
 
-## **🚀 Getting Started**
+---
 
-### **Clone the Repository**
+## **📂 Projects**
 
-Begin by cloning the main repository to your local machine:
+### **1\. JWT Authentication (/jwt-auth)**
 
-git clone git@github.com:PranavBongane/aspnetcore-auth-samples.git  
-cd aspnetcore-auth-samples
+A sample project demonstrating **JWT (JSON Web Token) authentication**.
 
-### **Running the Project**
+#### **🚀 Running the Project**
 
-Navigate into the jwt-auth project directory and run the application using the dotnet CLI:
+* `cd jwt-auth/JwtAuth.Api`  
+* `dotnet run`
 
-cd jwt-auth/JwtAuth.Api  
-dotnet run
+#### **🔑 Key Endpoints**
 
-**Testing the API**
+* `POST /api/auth/login` → Generates a JWT access token and refresh token.
 
-Use tools like **Scalar** or **cURL** to interact with the API endpoints. The example requests below will guide you.
+* `GET /api/secure/hello` → Example of a protected endpoint requiring `Bearer` token.
 
-## **📌 Project Details: JWT Authentication (/jwt-auth)**
+#### **Example: Login Request**
 
-* **Status**: Authentication is **implemented**. Authorization   
-* **Key Endpoints**:  
-  * POST /api/auth/login: Generates a **JWT token**.  
-* **Example Requests**:  
-  **Login Request**  
-  curl https://localhost:7242/api/Auth/login \\  
-*   \--request POST \\  
-*   \--header 'Content-Type: application/json' \\  
-*   \--data '{  
-*   "userName": "Pranav",  
-*   "password": "MadBongs@1999"  
-* }'
+* `curl https://localhost:7242/api/Auth/login \`  
+*   `--request POST \`  
+*   `--header 'Content-Type: application/json' \`  
+*   `--data '{`  
+*     `"userName": "Pranav",`  
+*     `"password": "MadBongs@1999"`  
+*   `}'`
 
-  **Response**  
-  {  
-*   "userId": "3fa2061b-a51e-413b-3cd3-08ddeb855179",  
-*   "accessToken": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiUHJhbmF2IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiIzZmEyMDYxYi1hNTFlLTQxM2ItM2NkMy0wOGRkZWI4NTUxNzkiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc1NzA1OTA2NCwiaXNzIjoiTXlBcHAiLCJhdWQiOiJNeUFwcF9Vc2VycyJ9.E1nC9AqTkMJfrfZEpTVD\_j\_8NMaAnoWBN5MViT9Hx5U9HAT\_jHx6WVF1dKC8Un5dWfYABZKgrIE6e1Jza9GdRQ",  
-*   "refreshToken": "YalGJB5phe/4u5AtStEQOtDq1oejhpCG+2aZ2h/7vYI="  
-* }  
-* 
+**Response**
 
-  **Calling a Protected Endpoint**  
-  curl \-X GET https://localhost:5001/api/secure/hello \\  
-    \-H "Authorization: Bearer eyJhbGciOiJIUzI1..."
+* `{`  
+*   `"userId": "3fa2061b-a51e-413b-3cd3-08ddeb855179",`  
+*   `"accessToken": "<JWT_TOKEN>",`  
+*   `"refreshToken": "<REFRESH_TOKEN>"`  
+* `}`
 
-## **🛠 Tech Stack**
+**Calling a Protected Endpoint**
 
-* ASP.NET Core 8.0  
-* C\#  
-* JWT Bearer Authentication  
+* `curl -X GET https://localhost:5001/api/secure/hello \`  
+*   `-H "Authorization: Bearer <JWT_TOKEN>"`
+
+#### **🛠 Tech Stack**
+
+* ASP.NET Core 8.0
+
+* JWT Bearer Authentication
+
 * Scalar / cURL for testing
+
+---
+
+### **2\. HMAC Authentication – Product Management API (/hmac-auth)**
+
+A **.NET 9 Web API** with **HMAC authentication** and **Entity Framework Core (code-first)** for managing products.
+
+#### **🚀 Running the Project**
+
+* `cd hmac-auth/ProductApi`  
+* `dotnet run`
+
+Default ports:
+
+* HTTP → `http://localhost:5001`
+
+* HTTPS → `https://localhost:7260`
+
+Scalar UI docs available at:  
+ `https://localhost:7260/scalar/v1`
+
+#### **🔑 Features**
+
+* **CRUD for Products** (`/api/products`)
+
+* **HMAC Authentication**
+
+  * Requests signed with HMAC-SHA256
+
+  * `Authorization` header carries clientId, signature, nonce, timestamp
+
+  * Server validates signatures, timestamps, and replays (nonce cache)
+
+* **Role-based Authorization**
+
+  * Only clients with `ProductManager` role can access product APIs
+
+* **EF Core Code-first**
+
+  * Auto-migration at startup
+
+#### **🔑 Example Endpoints**
+
+* `GET /api/products/getAll/` → List all products
+
+* `GET /api/products/getById/{id}` → Get product by ID
+
+* `POST /api/products/create` → Create new product
+
+* `PUT /api/products/update{id}` → Update product
+
+* `DELETE /api/products/delete{id}` → Delete product
+
+#### **🔐 Request Flow**
+
+1. Client signs request using secret key → adds HMAC signature headers.
+
+2. Server recomputes signature using stored secret → compares.
+
+3. If valid, issues an identity with roles.
+
+4. Authorization policy (`RequireProductManager`) enforces access.
+
+5. Controller executes EF Core CRUD operations.
+
+#### **🛠 Tech Stack**
+
+* ASP.NET Core 9.0
+
+* EF Core (code-first, SQL Server / SQLite)
+
+* Custom HMAC Authentication Handler
+
+* Scalar for API documentation
+
+---
+
+## **📘 Summary**
+
+This repo currently demonstrates:
+
+* ✅ **JWT Authentication** (token-based, stateless auth)
+
+* ✅ **HMAC Authentication** (shared-secret, signed requests, replay protection)
+
+Each sample is self-contained and runnable. More authentication strategies will be added over time.
+
+---
+
