@@ -1,0 +1,6 @@
+@HMAC_Auth_HostAddress = http://localhost:5091
+
+GET {{HMAC_Auth_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
